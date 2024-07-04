@@ -24,7 +24,7 @@ vehicles.add(
         decel=1.5,
     ),
     initial_speed=0,
-    num_vehicles=14)
+    num_vehicles=13)
 
 vehicles.add(
     veh_id="llm",
@@ -32,7 +32,7 @@ vehicles.add(
     lane_change_controller=(StaticLaneChanger, {}),
     routing_controller=(ContinuousRouter, {}),
     initial_speed=0,
-    num_vehicles=5,
+    num_vehicles=1,
     color="yellow"
     )
 
