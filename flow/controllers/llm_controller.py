@@ -9,7 +9,7 @@ from flow.controllers.base_controller import BaseController
 
 os.environ["http_proxy"] = "http://localhost:7890"
 os.environ["https_proxy"] = "http://localhost:7890"
-os.environ["OPENAI_API_KEY"] = ""
+# os.environ["OPENAI_API_KEY"] = ""
 
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 delimiter = "###########"
