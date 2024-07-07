@@ -65,12 +65,16 @@ class DriverAgent():
         self.client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
         self.veh_id = veh_id
 
+
+# You are an autonomous driver. Please give a suitable acceleration based on the scenario description and shared message below.
+        # Please output an action id and a message you want to tell other vehicles. Let's think step by step. You can give your reasoning progress.
+        # Output Format: only give a dictionary as below.
+        # {'action': 0, 'message': 'I suggest veh 0,1 slow down. Others please maintain the current speed.'}
+
     def make_decision(self, scenario_description, env):
         system_prompt = textwrap.dedent("""
-        You are an autonomous driver. Please give a suitable acceleration based on the scenario description and shared message below.
-        Please output an action id and a message you want to tell other vehicles. Let's think step by step. You can give your reasoning progress.
-        Output Format: only give a dictionary as below.
-        {'action': 0, 'message': 'I suggest veh 0,1 slow down. Others please maintain the current speed.'}
+        You are an autonomous driver in a traffic simulation. Your goal is to decide the best acceleration to help all vehicles pass through the intersection smoothly and safely. Consider the following scenario and provide a suitable action and a message for other vehicles.
+        Respond with a dictionary containing 'action' (0 for idle, 1 for acceleration, 2 for deceleration) and 'message' to communicate with other vehicles.
         """)
         shared_message = env.message_pool.get_msg()
         human_message = textwrap.dedent(f"""
@@ -145,19 +149,19 @@ class LLMController(BaseController):
         speed, pos = state['speed'], state['pos']
 
         scenario_description = textwrap.dedent(f"""\
-        You are driving on a road like figure eight. There is only a single lane in one direction with an intersection.
-        Your target is to decide your acceleration to help all vehicles pass the intersection quickly and smoothly.
+        You are driving on a road with a figure-eight pattern. There is only a single lane in each direction with an intersection.
+        Your goal is to decide your acceleration to help all vehicles pass through the intersection quickly and smoothly.
         Your speed is {env.k.vehicle.get_speed(self.veh_id)} m/s, IDM acceleration is {IDM_acc} m/s^2, and lane position is {env.k.vehicle.get_position(self.veh_id)} m. 
-        There are other vehicles driving around you, and below is their basic information:
+        There are other vehicles driving around you, Other vehicles' information:
         """)
         for i in range(len(speed)):
             scenario_description += f" - Vehicle {i} is driving on the same lane as you. The speed of it is {speed[i]} m/s, and lane position is {pos[i]} m.\n"
         
         action_space = textwrap.dedent(f"""
         {delimiter} IDM gives acceleration {IDM_acc} m/s^2. Your available actions:
-        IDLE - remain in the current lane with current speed Action_id: 0
-        Acceleration - accelerate the vehicle Action_id: 1
-        Deceleration - decelerate the vehicle Action_id: 2
+        - IDLE (remain in the current lane with current speed) - Action ID: 0
+        - Acceleration (increase speed) - Action_id: 1
+        - Deceleration (decrease speed) - Action_id: 2
         """)
         scenario_description += action_space
 
